@@ -1,3 +1,5 @@
+require 'bridge.rb'
+
 task :start => ['src:setup', 'dest:setup', 'dest:start', 'bridge:setup']
 
 namespace :src do
@@ -35,34 +37,10 @@ end
 
 namespace :bridge do
   task :setup do
-    File.exists? '/tmp/bridge' and rm_r '/tmp/bridge'
-    mkdir '/tmp/bridge'
-    cd '/tmp/bridge' do
-      sh "git clone /tmp/src ."
-      sh "hg init"
-    end
+    Bridge.new.setup
   end
 
   task :run do
-    cd '/tmp/bridge' do
-      sh "git pull"
-      logs = `git log --oneline`.lines.to_a
-      if File.exists? '/tmp/bridge.last'
-        last = IO.read('/tmp/bridge.last').strip
-        logs = logs.take_while { |log| log.split.first != last }
-      end
-      logs.reverse!
-      last = nil
-      logs.each do |log|
-        revision = log.split.first
-        last = revision
-        sh "git checkout #{revision}"
-        sh "hg addremove --exclude .git"
-        sh "hg commit -m '#{log.strip}' -ubridge"
-        sh "hg push http://localhost:8000"
-      end
-      sh "git checkout master"
-      last and File.open('/tmp/bridge.last', 'w') { |f| f.write(last) }
-    end
+    Bridge.new.run
   end
 end
