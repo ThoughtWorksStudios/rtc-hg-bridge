@@ -1,10 +1,10 @@
 require 'bridge.rb'
 
 task :start => ['src:setup', 'dest:setup', 'dest:start', 'bridge:setup']
+task :stop => ['src:stop', 'dest:stop', 'bridge:stop']
 
 namespace :src do
   task :setup do
-    File.exists? '/tmp/src' and rm_r '/tmp/src'
     cp_r 'test/data/src', '/tmp'
     cd '/tmp/src' do
       sh "git init"
@@ -12,11 +12,14 @@ namespace :src do
       sh "git commit -m'first commit'"
     end
   end
+
+  task :stop do
+    File.exists? '/tmp/src' and rm_r '/tmp/src'
+  end
 end
 
 namespace :dest do
   task :setup  do
-    File.exists? '/tmp/dest' and rm_r '/tmp/dest'
     mkdir '/tmp/dest'
     cd '/tmp/dest' do
       sh "hg init"
@@ -30,6 +33,7 @@ namespace :dest do
   end
 
   task :stop do
+    File.exists? '/tmp/dest' and rm_r '/tmp/dest'
     sh "kill `cat /tmp/dest.pid`"
     rm '/tmp/dest.pid'
   end
@@ -42,5 +46,9 @@ namespace :bridge do
 
   task :run do
     Bridge.new.run
+  end
+
+  task :stop do
+    File.exists? '/tmp/bridge' and rm_r '/tmp/bridge'
   end
 end
