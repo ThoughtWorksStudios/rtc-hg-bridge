@@ -10,6 +10,9 @@ class Bridge
     cd WORKING_COPY do
       @scm.make_working_copy
       sh "hg init"
+      sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
+      sh "hg commit -m 'Initial bridge checkin.' -ubridge"
+      sh "hg push --quiet #{HG_REPO}"
     end
   end
 
@@ -32,11 +35,11 @@ class SCM
   USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
-  WORKSPACE = 'ben-stream'
+  WORKSPACE = 'bridge-workspace-1'
 
   def make_working_copy
     sh "scm create workspace --username #{USER} --password #{PASSWORD} \
-          --repository-uri #{REPO} -stream #{STREAM} #{WORKSPACE}"
+          --repository-uri #{REPO} --stream #{STREAM} #{WORKSPACE}"
     sh "scm load --username #{USER} --password #{PASSWORD} #{WORKSPACE}@#{REPO}"
   end
 
