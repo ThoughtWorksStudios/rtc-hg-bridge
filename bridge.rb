@@ -28,18 +28,25 @@ class Bridge
 end
 
 class SCM
+  REPO = 'https://localhost:9443/ccm'
+  USER = 'ben'
+  PASSWORD = 'ben'
+  STREAM = "'BRM Stream'"
+  WORKSPACE = 'ben-stream'
+
   def make_working_copy
-    sh "scm create workspace --username ben --password ben --repository-uri https://localhost:9443/ccm -s 'BRM Stream' ben-stream"
-    sh "scm load --username ben --password ben ben-stream@https://localhost:9443/ccm"
+    sh "scm create workspace --username #{USER} --password #{PASSWORD} \
+          --repository-uri #{REPO} -stream #{STREAM} #{WORKSPACE}"
+    sh "scm load --username #{USER} --password #{PASSWORD} #{WORKSPACE}@#{REPO}"
   end
 
   def get_logs
-    `scm compare ws "BRM Stream" stream ben-stream --password ben --include-types s`.
+    `scm compare ws #{WORKSPACE} stream #{STREAM} --password #{PASSWORD} --include-types s`.
       lines.map { |line| Log.new(line) }
   end
 
   def change_working_copy_to_revision(revision)
-    sh "scm accept --password ben --changes #{revision}"
+    sh "scm accept --password #{PASSWORD} --changes #{revision}"
   end
 
   class Log
