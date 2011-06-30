@@ -56,7 +56,7 @@ class SCM
     attr_reader :revision, :message
 
     def initialize(line)
-      parse = /\(([0-9])\) (.*)/.match(line)
+      parse = /\(([0-9]+)\) (.*)/.match(line)
       @revision = parse[1]
       @message = parse[2]
     end
