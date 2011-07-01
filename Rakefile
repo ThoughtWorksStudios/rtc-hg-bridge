@@ -1,22 +1,7 @@
 require 'bridge.rb'
 
-task :start => ['src:setup', 'dest:setup', 'dest:start', 'bridge:setup']
-task :stop => ['src:stop', 'dest:stop', 'bridge:stop']
-
-namespace :src do
-  task :setup do
-    cp_r 'test/data/src', '/tmp'
-    cd '/tmp/src' do
-      sh "git init"
-      sh "git add content"
-      sh "git commit -m'first commit'"
-    end
-  end
-
-  task :stop do
-    File.exists? '/tmp/src' and rm_r '/tmp/src'
-  end
-end
+task :start => ['dest:setup', 'dest:start', 'bridge:setup']
+task :stop => ['dest:stop', 'bridge:stop']
 
 namespace :dest do
   task :setup  do
