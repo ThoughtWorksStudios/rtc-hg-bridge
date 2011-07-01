@@ -92,7 +92,7 @@ if __FILE__ == $0
   action = nil
   options = {:hg=>{}, :rtc=>{}}
 
-  optparse = OptionParser.new do|opts|
+  optparse = OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [--init | --run] [parameters]"
     opts.separator ''
     opts.separator 'Actions:'
@@ -153,7 +153,7 @@ if __FILE__ == $0
   optparse.parse(ARGV)
 
   unless action
-    puts opts
+    puts optparse
     exit 1
   end
 
