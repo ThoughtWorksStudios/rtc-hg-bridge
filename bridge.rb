@@ -5,7 +5,7 @@ require 'optparse'
 
 module Shell
   def sh command
-    system(command) or raise "Command failed with status #{$?}: [#{command}]"
+    system(command) or raise "Command failed with status #{$?.exitstatus}: [#{command}]"
   end
 end
 
@@ -57,7 +57,7 @@ class SCM
   USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
-  WORKSPACE = 'bridge-workspace-2'
+  WORKSPACE = 'bridge-workspace-6'
 
   def make_working_copy
     sh "scm create workspace --username #{USER} --password #{PASSWORD} \
@@ -132,6 +132,3 @@ if __FILE__ == $0
 
   Bridge.new(options).send(action)
 end
-
-puts __FILE__
-puts $0
