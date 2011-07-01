@@ -1,7 +1,13 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
 WORKING_COPY = '/tmp/bridge'
 HG_REPO = 'http://localhost:8000'
 
 class Bridge
+  include FileUtils
+
   def initialize() @scm = SCM.new end
 
   def setup
@@ -18,7 +24,7 @@ class Bridge
     cd WORKING_COPY do
       logs = @scm.get_logs
       logs.each do |log|
-        last = log.revision
+        puts "Syncing #{log.revision}"
         @scm.change_working_copy_to_revision(log.revision)
         push_change '#{log.revision}: #{log.message}'
       end
@@ -64,4 +70,8 @@ class SCM
       @message = parse[2]
     end
   end
+end
+
+if __FILE__ == $0
+  Bridge.new.run
 end
