@@ -26,11 +26,11 @@ end
 
 namespace :bridge do
   task :setup do
-    sh "./rtc-git-bridge --init #{args}"
+    sh "./rtc-hg-bridge --init #{args}"
   end
 
   task :run do
-    sh "./rtc-git-bridge --run #{args}"
+    sh "./rtc-hg-bridge --run #{args}"
   end
 end
 
@@ -39,5 +39,5 @@ def args
 end
 
 def ws
-  'test-ws-11'
+  'test-ws-12'
 end
