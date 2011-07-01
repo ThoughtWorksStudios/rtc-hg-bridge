@@ -1,0 +1,26 @@
+Usage: ./rtc-hg-bridge [--init | --run] [parameters]
+
+Actions:
+  give one
+    -i, --init                       Initialize the bridge
+    -r, --run                        Run the bridge
+
+Parameters:
+  all mandatory
+    -d, --directory DIRECTORY        Working directory
+                                       created or emptied on initialization
+                                       do not delete between runs
+    -m REPOSITORY                    URL of Mercurial repository
+        --mercurial-repository
+    -t, --rtc-repository REPOSITORY  URL of RTC SCM repository
+    -u, --rtc-user USER              RTC user name
+                                       must have permission to create a workspace
+    -p, --rtc-password PASSWORD      RTC user password
+                                       must have permission to create a workspace
+    -w, --rtc-workspace WORKSPACE    Workspace to use in RTC repository
+                                       created during initialization
+    -s, --rtc-stream STREAM          Stream to use in RTC repository
+                                       created during initialization
+
+Other:
+    -h, --help                       Display this help
