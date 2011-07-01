@@ -57,15 +57,14 @@ class RTC
     @opts = opts
   end
 
-  USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
   WORKSPACE = 'bridge-workspace-8'
 
   def make_working_copy
-    sh "scm create workspace --username #{USER} --password #{PASSWORD} \
+    sh "scm create workspace --username #{user} --password #{PASSWORD} \
           --repository-uri #{repo} --stream #{STREAM} #{workspace}"
-    sh "scm load --username #{USER} --password #{PASSWORD} #{workspace}@#{repo}"
+    sh "scm load --username #{user} --password #{PASSWORD} #{workspace}@#{repo}"
   end
 
   def get_logs
@@ -79,6 +78,7 @@ class RTC
 
   private
   def repo() @opts[:repo] end
+  def user() @opts[:user] end
   def workspace() @opts[:workspace] end
 
   class Log
@@ -124,6 +124,11 @@ if __FILE__ == $0
 
     opts.on('-t', '--rtc-repository REPOSITORY', 'URL of RTC SCM repository') do |repo|
       options[:rtc][:repo] = repo
+    end
+
+    opts.on('-u', '--rtc-user USER', 'RTC user name',
+            '  must have permission to create a workspace') do |user|
+      options[:rtc][:user] = user
     end
 
     opts.on('-w', '--rtc-workspace WORKSPACE', 'Workspace to use in RTC repository',

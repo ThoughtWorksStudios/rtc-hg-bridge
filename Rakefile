@@ -37,5 +37,9 @@ namespace :bridge do
 end
 
 def args
-  '-d /tmp/foo -m http://localhost:8000 -t https://localhost:9443/ccm -w test-ws-2'
+  "-d /tmp/foo -m http://localhost:8000 -t https://localhost:9443/ccm -w #{ws} -u ben"
+end
+
+def ws
+  'test-ws-4'
 end
