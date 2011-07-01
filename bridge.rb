@@ -10,9 +10,7 @@ class Bridge
     cd WORKING_COPY do
       @scm.make_working_copy
       sh "hg init"
-      sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
-      sh "hg commit -m 'Initial bridge checkin.' -ubridge"
-      sh "hg push --quiet #{HG_REPO}"
+      push_change 'Initial bridge checkin.'
     end
   end
 
@@ -22,11 +20,16 @@ class Bridge
       logs.each do |log|
         last = log.revision
         @scm.change_working_copy_to_revision(log.revision)
-        sh "hg addremove --quiet --exclude .git --exclude .last"
-        sh "hg commit -m '#{log.revision}: #{log.message}' -ubridge"
-        sh "hg push --quiet #{HG_REPO}"
+        push_change '#{log.revision}: #{log.message}'
       end
     end
+  end
+
+  private
+  def push_change message
+    sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
+    sh "hg commit -m '#{message}' -ubridge"
+    sh "hg push --quiet #{HG_REPO}"
   end
 end
 
@@ -35,7 +38,7 @@ class SCM
   USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
-  WORKSPACE = 'bridge-workspace-1'
+  WORKSPACE = 'bridge-workspace-2'
 
   def make_working_copy
     sh "scm create workspace --username #{USER} --password #{PASSWORD} \
