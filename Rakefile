@@ -1,7 +1,10 @@
 require 'bridge.rb'
 
 task :start => ['dest:setup', 'dest:start', 'bridge:setup']
-task :stop => ['dest:stop', 'bridge:stop']
+task :stop => ['dest:stop']
+task :run => ['bridge:run']
+
+task :test => [:stop, :start, :run]
 
 namespace :dest do
   task :setup  do
@@ -19,21 +22,20 @@ namespace :dest do
 
   task :stop do
     File.exists? '/tmp/dest' and rm_r '/tmp/dest'
-    sh "kill `cat /tmp/dest.pid`"
-    rm '/tmp/dest.pid'
+    File.exists? '/tmp/dest.pid' and sh "kill `cat /tmp/dest.pid`" and rm '/tmp/dest.pid'
   end
 end
 
 namespace :bridge do
   task :setup do
-    Bridge.new.setup
+    sh "./bridge.rb --init #{args}"
   end
 
   task :run do
-    Bridge.new.run
+    sh "./bridge.rb --run #{args}"
   end
+end
 
-  task :stop do
-    File.exists? '/tmp/bridge' and rm_r '/tmp/bridge'
-  end
+def args
+  '-d /tmp/foo -m http://localhost:8000 -t https://localhost:9443/ccm -w test-ws-2'
 end
