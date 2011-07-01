@@ -57,28 +57,28 @@ class RTC
     @opts = opts
   end
 
-  PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
   WORKSPACE = 'bridge-workspace-8'
 
   def make_working_copy
-    sh "scm create workspace --username #{user} --password #{PASSWORD} \
+    sh "scm create workspace --username #{user} --password #{password} \
           --repository-uri #{repo} --stream #{STREAM} #{workspace}"
-    sh "scm load --username #{user} --password #{PASSWORD} #{workspace}@#{repo}"
+    sh "scm load --username #{user} --password #{password} #{workspace}@#{repo}"
   end
 
   def get_logs
-    `scm compare ws #{workspace} stream #{STREAM} --password #{PASSWORD} --include-types s`.
+    `scm compare ws #{workspace} stream #{STREAM} --password #{password} --include-types s`.
       lines.map { |line| Log.new(line) }
   end
 
   def change_working_copy_to_revision(revision)
-    sh "scm accept --password #{PASSWORD} --changes #{revision}"
+    sh "scm accept --password #{password} --changes #{revision}"
   end
 
   private
   def repo() @opts[:repo] end
   def user() @opts[:user] end
+  def password() @opts[:password] end
   def workspace() @opts[:workspace] end
 
   class Log
@@ -129,6 +129,11 @@ if __FILE__ == $0
     opts.on('-u', '--rtc-user USER', 'RTC user name',
             '  must have permission to create a workspace') do |user|
       options[:rtc][:user] = user
+    end
+
+    opts.on('-p', '--rtc-password PASSWORD', 'RTC user password',
+            '  must have permission to create a workspace') do |password|
+      options[:rtc][:password] = password
     end
 
     opts.on('-w', '--rtc-workspace WORKSPACE', 'Workspace to use in RTC repository',
