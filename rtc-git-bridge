@@ -16,6 +16,7 @@ class Bridge
   def initialize(opts)
     @opts = opts
     @rtc = RTC.new(opts[:rtc])
+    @hg = HG.new(opts[:hg])
   end
 
   def init
@@ -23,7 +24,7 @@ class Bridge
     mkdir directory
     cd directory do
       @rtc.make_working_copy
-      sh "hg init"
+      @hg.initialize_working_copy
       push_change 'Initial bridge checkin.'
     end
   end
@@ -48,6 +49,19 @@ class Bridge
 
   def directory() @opts[:directory] end
   def hg_repo() @opts[:hg][:repo] end
+end
+
+class HG
+  include Shell
+
+  def initialize(opts) @opts = opts end
+
+  def initialize_working_copy
+    sh "hg init"
+  end
+
+  private
+  def repo() @opts[:hg] end
 end
 
 class RTC
