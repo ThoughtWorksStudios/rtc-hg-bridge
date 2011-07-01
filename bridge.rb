@@ -15,7 +15,7 @@ class Bridge
 
   def initialize(opts)
     @opts = opts
-    @scm = SCM.new
+    @scm = RTC.new(opts[:rtc])
   end
 
   def init
@@ -40,29 +40,32 @@ class Bridge
   end
 
   private
-  def push_change message
+  def push_change(message)
     sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
     sh "hg commit -m '#{message}' -ubridge"
     sh "hg push --quiet #{hg_repo}"
   end
 
   def directory() @opts[:directory] end
-  def hg_repo() @opts[:hg_repo] end
+  def hg_repo() @opts[:hg][:repo] end
 end
 
-class SCM
+class RTC
   include Shell
 
-  REPO = 'https://localhost:9443/ccm'
+  def initialize(opts)
+    @opts = opts
+  end
+
   USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
-  WORKSPACE = 'bridge-workspace-6'
+  WORKSPACE = 'bridge-workspace-7'
 
   def make_working_copy
     sh "scm create workspace --username #{USER} --password #{PASSWORD} \
-          --repository-uri #{REPO} --stream #{STREAM} #{WORKSPACE}"
-    sh "scm load --username #{USER} --password #{PASSWORD} #{WORKSPACE}@#{REPO}"
+          --repository-uri #{repo} --stream #{STREAM} #{WORKSPACE}"
+    sh "scm load --username #{USER} --password #{PASSWORD} #{WORKSPACE}@#{repo}"
   end
 
   def get_logs
@@ -73,6 +76,9 @@ class SCM
   def change_working_copy_to_revision(revision)
     sh "scm accept --password #{PASSWORD} --changes #{revision}"
   end
+
+  private
+  def repo() @opts[:repo] end
 
   class Log
     attr_reader :revision, :message
@@ -87,7 +93,7 @@ end
 
 if __FILE__ == $0
   action = nil
-  options = {}
+  options = {:hg=>{}, :rtc=>{}}
 
   optparse = OptionParser.new do|opts|
     opts.banner = "Usage: #{$0} [--init | --run] [parameters]"
@@ -111,8 +117,12 @@ if __FILE__ == $0
       options[:directory] = dir
     end
 
-    opts.on('-m', '--mercurial-repo REPO', 'URL of Mercurial repository') do |repo|
-      options[:hg_repo] = repo
+    opts.on('-m', '--mercurial-repository REPOSITORY', 'URL of Mercurial repository') do |repo|
+      options[:hg][:repo] = repo
+    end
+
+    opts.on('-t', '--rtc-repository REPOSITORY', 'URL of RTC SCM repository') do |repo|
+      options[:rtc][:repo] = repo
     end
 
     opts.separator ''
