@@ -60,16 +60,16 @@ class RTC
   USER = 'ben'
   PASSWORD = 'ben'
   STREAM = "'BRM Stream'"
-  WORKSPACE = 'bridge-workspace-7'
+  WORKSPACE = 'bridge-workspace-8'
 
   def make_working_copy
     sh "scm create workspace --username #{USER} --password #{PASSWORD} \
-          --repository-uri #{repo} --stream #{STREAM} #{WORKSPACE}"
-    sh "scm load --username #{USER} --password #{PASSWORD} #{WORKSPACE}@#{repo}"
+          --repository-uri #{repo} --stream #{STREAM} #{workspace}"
+    sh "scm load --username #{USER} --password #{PASSWORD} #{workspace}@#{repo}"
   end
 
   def get_logs
-    `scm compare ws #{WORKSPACE} stream #{STREAM} --password #{PASSWORD} --include-types s`.
+    `scm compare ws #{workspace} stream #{STREAM} --password #{PASSWORD} --include-types s`.
       lines.map { |line| Log.new(line) }
   end
 
@@ -79,6 +79,7 @@ class RTC
 
   private
   def repo() @opts[:repo] end
+  def workspace() @opts[:workspace] end
 
   class Log
     attr_reader :revision, :message
@@ -113,7 +114,7 @@ if __FILE__ == $0
     opts.separator '  all mandatory'
 
     opts.on('-d', '--directory DIRECTORY', 'Working directory',
-            '  Created or emptied on initialization.', '  Do not delete between runs.') do |dir|
+            '  created or emptied on initialization', '  do not delete between runs') do |dir|
       options[:directory] = dir
     end
 
@@ -123,6 +124,11 @@ if __FILE__ == $0
 
     opts.on('-t', '--rtc-repository REPOSITORY', 'URL of RTC SCM repository') do |repo|
       options[:rtc][:repo] = repo
+    end
+
+    opts.on('-w', '--rtc-workspace WORKSPACE', 'Workspace to use in RTC repository',
+            '  created during initialization') do |ws|
+      options[:rtc][:workspace] = ws
     end
 
     opts.separator ''
