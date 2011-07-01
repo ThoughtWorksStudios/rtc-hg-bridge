@@ -20,7 +20,7 @@ class Bridge
 
   def init
     File.exists? directory and rm_r directory
-    mkdir directory
+    mkdir_p directory
     cd directory do
       @rtc.make_working_copy
       @hg.initialize_working_copy
@@ -31,8 +31,7 @@ class Bridge
 
   def run
     cd directory do
-      logs = @rtc.get_logs
-      logs.each do |log|
+      @rtc.get_logs.each do |log|
         @rtc.change_working_copy_to_revision(log.revision)
         @hg.commit_changes '#{log.revision}: #{log.message}'
       end
