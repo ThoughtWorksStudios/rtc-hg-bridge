@@ -39,5 +39,5 @@ def args
 end
 
 def ws
-  'test-ws-7'
+  'test-ws-11'
 end

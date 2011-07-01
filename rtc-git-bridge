@@ -25,7 +25,8 @@ class Bridge
     cd directory do
       @rtc.make_working_copy
       @hg.initialize_working_copy
-      push_change 'Initial bridge checkin.'
+      @hg.commit_changes 'Initial bridge checkin.'
+      @hg.push_commits
     end
   end
 
@@ -35,20 +36,14 @@ class Bridge
       logs.each do |log|
         puts "Syncing #{log.revision}"
         @rtc.change_working_copy_to_revision(log.revision)
-        push_change '#{log.revision}: #{log.message}'
+        @hg.commit_changes '#{log.revision}: #{log.message}'
       end
+      @hg.push_commits
     end
   end
 
   private
-  def push_change(message)
-    sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
-    sh "hg commit -m '#{message}' -ubridge"
-    sh "hg push --quiet #{hg_repo}"
-  end
-
   def directory() @opts[:directory] end
-  def hg_repo() @opts[:hg][:repo] end
 end
 
 class HG
@@ -60,8 +55,17 @@ class HG
     sh "hg init"
   end
 
+  def commit_changes(message)
+    sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
+    sh "hg commit -m '#{message}' -ubridge"
+  end
+
+  def push_commits
+    sh "hg push --quiet #{repo}"
+  end
+
   private
-  def repo() @opts[:hg] end
+  def repo() @opts[:repo] end
 end
 
 class RTC
