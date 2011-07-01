@@ -33,7 +33,6 @@ class Bridge
     cd directory do
       logs = @rtc.get_logs
       logs.each do |log|
-        puts "Syncing #{log.revision}"
         @rtc.change_working_copy_to_revision(log.revision)
         @hg.commit_changes '#{log.revision}: #{log.message}'
       end
