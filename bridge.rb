@@ -1,19 +1,29 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'optparse'
 
-WORKING_COPY = '/tmp/bridge'
 HG_REPO = 'http://localhost:8000'
+
+module Shell
+  def sh command
+    system(command) or raise "Command failed with status #{$?}: [#{command}]"
+  end
+end
 
 class Bridge
   include FileUtils
+  include Shell
 
-  def initialize() @scm = SCM.new end
+  def initialize(opts)
+    @opts = opts
+    @scm = SCM.new
+  end
 
-  def setup
-    File.exists? WORKING_COPY and rm_r WORKING_COPY
-    mkdir WORKING_COPY
-    cd WORKING_COPY do
+  def init
+    File.exists? directory and rm_r directory
+    mkdir directory
+    cd directory do
       @scm.make_working_copy
       sh "hg init"
       push_change 'Initial bridge checkin.'
@@ -21,7 +31,7 @@ class Bridge
   end
 
   def run
-    cd WORKING_COPY do
+    cd directory do
       logs = @scm.get_logs
       logs.each do |log|
         puts "Syncing #{log.revision}"
@@ -37,9 +47,13 @@ class Bridge
     sh "hg commit -m '#{message}' -ubridge"
     sh "hg push --quiet #{HG_REPO}"
   end
+
+  def directory() @opts[:directory] end
 end
 
 class SCM
+  include Shell
+
   REPO = 'https://localhost:9443/ccm'
   USER = 'ben'
   PASSWORD = 'ben'
@@ -73,5 +87,46 @@ class SCM
 end
 
 if __FILE__ == $0
-  Bridge.new.run
+  action = nil
+  options = {}
+
+  optparse = OptionParser.new do|opts|
+    opts.banner = "Usage: #{$0} [--init | --run] [parameters]"
+    opts.separator ''
+    opts.separator 'Actions:'
+    opts.separator '  give one'
+
+    opts.on('-i', '--init', 'Initialize the bridge') do
+      action = :init
+    end
+    opts.on('-r', '--run', 'Run the bridge') do
+      action = :run
+    end
+
+    opts.separator ''
+    opts.separator 'Parameters:'
+    opts.separator '  all mandatory'
+
+    opts.on('-d', '--directory DIRECTORY', 'Working directory',
+            '  Created or emptied on initialization.', '  Do not delete between runs.') do |dir|
+      options[:directory] = dir
+    end
+
+    opts.on( '-h', '--help', 'Display this help' ) do
+      puts opts
+      exit
+    end
+  end
+
+  optparse.parse(ARGV)
+
+  unless action
+    puts opts
+    exit 1
+  end
+
+  Bridge.new(options).send(action)
 end
+
+puts __FILE__
+puts $0
