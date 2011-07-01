@@ -1,5 +1,3 @@
-require 'bridge.rb'
-
 task :start => ['dest:setup', 'dest:start', 'bridge:setup']
 task :stop => ['dest:stop']
 task :run => ['bridge:run']
@@ -28,11 +26,11 @@ end
 
 namespace :bridge do
   task :setup do
-    sh "./bridge.rb --init #{args}"
+    sh "./rtc-git-bridge --init #{args}"
   end
 
   task :run do
-    sh "./bridge.rb --run #{args}"
+    sh "./rtc-git-bridge --run #{args}"
   end
 end
 
