@@ -3,8 +3,6 @@
 require 'fileutils'
 require 'optparse'
 
-HG_REPO = 'http://localhost:8000'
-
 module Shell
   def sh command
     system(command) or raise "Command failed with status #{$?}: [#{command}]"
@@ -45,10 +43,11 @@ class Bridge
   def push_change message
     sh "hg addremove --quiet --exclude .jazz5 --exclude .metadata"
     sh "hg commit -m '#{message}' -ubridge"
-    sh "hg push --quiet #{HG_REPO}"
+    sh "hg push --quiet #{hg_repo}"
   end
 
   def directory() @opts[:directory] end
+  def hg_repo() @opts[:hg_repo] end
 end
 
 class SCM
@@ -112,6 +111,12 @@ if __FILE__ == $0
       options[:directory] = dir
     end
 
+    opts.on('-m', '--mercurial-repo REPO', 'URL of Mercurial repository') do |repo|
+      options[:hg_repo] = repo
+    end
+
+    opts.separator ''
+    opts.separator 'Other:'
     opts.on( '-h', '--help', 'Display this help' ) do
       puts opts
       exit
