@@ -15,14 +15,14 @@ class Bridge
 
   def initialize(opts)
     @opts = opts
-    @scm = RTC.new(opts[:rtc])
+    @rtc = RTC.new(opts[:rtc])
   end
 
   def init
     File.exists? directory and rm_r directory
     mkdir directory
     cd directory do
-      @scm.make_working_copy
+      @rtc.make_working_copy
       sh "hg init"
       push_change 'Initial bridge checkin.'
     end
@@ -30,10 +30,10 @@ class Bridge
 
   def run
     cd directory do
-      logs = @scm.get_logs
+      logs = @rtc.get_logs
       logs.each do |log|
         puts "Syncing #{log.revision}"
-        @scm.change_working_copy_to_revision(log.revision)
+        @rtc.change_working_copy_to_revision(log.revision)
         push_change '#{log.revision}: #{log.message}'
       end
     end
