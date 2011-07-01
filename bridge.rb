@@ -53,21 +53,16 @@ end
 class RTC
   include Shell
 
-  def initialize(opts)
-    @opts = opts
-  end
-
-  STREAM = "'BRM Stream'"
-  WORKSPACE = 'bridge-workspace-8'
+  def initialize(opts) @opts = opts end
 
   def make_working_copy
     sh "scm create workspace --username #{user} --password #{password} \
-          --repository-uri #{repo} --stream #{STREAM} #{workspace}"
+          --repository-uri #{repo} --stream #{stream} #{workspace}"
     sh "scm load --username #{user} --password #{password} #{workspace}@#{repo}"
   end
 
   def get_logs
-    `scm compare ws #{workspace} stream #{STREAM} --password #{password} --include-types s`.
+    `scm compare ws #{workspace} stream #{stream} --password #{password} --include-types s`.
       lines.map { |line| Log.new(line) }
   end
 
@@ -80,6 +75,7 @@ class RTC
   def user() @opts[:user] end
   def password() @opts[:password] end
   def workspace() @opts[:workspace] end
+  def stream() "'#{@opts[:stream]}'" end
 
   class Log
     attr_reader :revision, :message
@@ -139,6 +135,11 @@ if __FILE__ == $0
     opts.on('-w', '--rtc-workspace WORKSPACE', 'Workspace to use in RTC repository',
             '  created during initialization') do |ws|
       options[:rtc][:workspace] = ws
+    end
+
+    opts.on('-s', '--rtc-stream STREAM', 'Stream to use in RTC repository',
+            '  created during initialization') do |stream|
+      options[:rtc][:stream] = stream
     end
 
     opts.separator ''
