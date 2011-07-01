@@ -58,7 +58,7 @@ class RTC
   def make_working_copy
     sh "scm create workspace --username #{user} --password #{password} \
           --repository-uri #{repo} --stream #{stream} #{workspace}"
-    sh "scm load --username #{user} --password #{password} #{workspace}@#{repo}"
+    sh "scm load #{workspace} --username #{user} --password #{password} --repository-uri #{repo}"
   end
 
   def get_logs
