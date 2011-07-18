@@ -77,8 +77,14 @@ class RTC
   end
 
   def get_logs
-    `scm compare ws #{workspace} stream #{stream} --password #{password} --include-types s`.
-      lines.map { |line| Log.new(line) }
+    scm_log = `scm compare ws #{workspace} stream #{stream} --password #{password} --include-types s`
+    result = []
+    if not scm_log.empty?
+      scm_log.each_line {|line| result << Log.new(line) }
+    else
+      puts "No changes found!"
+    end
+    result
   end
 
   def change_working_copy_to_revision(revision)
