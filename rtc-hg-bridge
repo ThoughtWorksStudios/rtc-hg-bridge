@@ -77,8 +77,9 @@ class RTC
   end
 
   def get_logs
-    `scm compare ws #{workspace} stream #{stream} --password #{password} --include-types s`.
-      lines.map { |line| Log.new(line) }
+    logs = `scm compare ws #{workspace} stream #{stream} --password #{password} --include-types s`
+    logs.respond_to?(:lines) and logs = logs.lines
+    logs.map { |line| Log.new(line) }
   end
 
   def change_working_copy_to_revision(revision)
